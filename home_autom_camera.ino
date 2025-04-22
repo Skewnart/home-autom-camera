@@ -97,9 +97,9 @@ void configCamera(){
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
 
-  config.frame_size = FRAMESIZE_QVGA;
-  config.jpeg_quality = 9;
-  config.fb_count = 1;
+  config.frame_size = FRAMESIZE_HD;
+  config.jpeg_quality = 10;
+  config.fb_count = 2;
 
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
@@ -180,6 +180,14 @@ void http_resp(){
     client.flush();
     if (resource == "GET /getcam")
       client.print("HTTP/1.1 200 OK\r\n\r\n" + index_html);   //send js script to connect the websocket
+    else if (resource == "GET /metrics")
+    {
+      // String metrics = "# TYPE camera_frames_total counter\n";
+      // metrics += "camera_frames_total " + String(frameCount) + "\n";
+      String metrics = "# TYPE camera_health gauge\n";
+      metrics += "camera_health 1\n";
+      client.print("HTTP/1.1 200 OK\r\n\r\n" + metrics);
+    }
     else
       client.print("HTTP/1.1 404");
     client.stop();
@@ -193,4 +201,5 @@ void loop() {
   if(connected == true){
     liveCam(cam_num);
   }
+  delay(33);
 }
